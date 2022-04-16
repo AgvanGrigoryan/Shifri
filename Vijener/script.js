@@ -1,6 +1,6 @@
 var vizhener = {
-  ru : "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split(""),
-  en : "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+  ru : "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ".split(""),
+  en : "ABCDEFGHIJKLMNOPQRSTUVWXYZ ".split(""),
   // am : "ԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔևՕՖ".split(""),
   square : [],
   genSqViz : function (lang) {
@@ -11,20 +11,37 @@ var vizhener = {
   },
   
   encryption : function (lang, text, key) {
-      if (lang !== "ru" && lang !== "en" || text.length !== key.length) return 'key != text';
-      this.genSqViz(lang);
-      var s = "";
-      for (var i = 0; i < text.length; i++) {
-        s += this.square[this[lang].indexOf(text[i])][this[lang].indexOf(key[i])];
-      }
-      return s;
+    let fullKey = key;
+      if (lang !== "ru" && lang !== "en" || text.length !== key.length) {
+        if(text.length > key.length){
+          for(var i = 1;i<text.length/key.length;i++){
+            fullKey += fullKey.length<text.length?key:"";
+          };
+        };
+        fullKey = fullKey.slice(0,text.length);
+      };
+      
+    this.genSqViz(lang);
+    var s = "";
+    for (var i = 0; i < text.length; i++) {
+        s += this.square[this[lang].indexOf(text[i])][this[lang].indexOf(fullKey[i])];
+    }
+    return s;
   },
   decryption : function (lang, key, shifr) {
-      if (lang !== "ru" && lang !== "en" || shifr.length !== key.length) return 'key != text';
+    let fullKey = key;
+    if (lang !== "ru" && lang !== "en" || shifr.length !== key.length) {
+      if(shifr.length > key.length){
+        for(var i = 1;i<shifr.length/key.length;i++){
+          fullKey += fullKey.length<shifr.length?key:"";
+        };
+      };
+      fullKey = fullKey.slice(0,shifr.length);
+    };
       this.genSqViz(lang);
       var s = "";
       for (var i = 0; i < shifr.length; i++) {
-          var row = this[lang].indexOf(key[i])
+          var row = this[lang].indexOf(fullKey[i]);
               coll = this.square[row].indexOf(shifr[i]);
           s += this[lang][coll];
       }
@@ -38,16 +55,16 @@ var vizhener = {
 // document.write (vizhener.encryption("ru", "ПОЖАРГОРИМ", "ЖОПАЖОПАЖО") + "<br>"); //(ru) шифруем
 // document.write (vizhener.decryption("ru", "ЖОПАЖОПАЖО", "ЦЭЦАЧСЮРПЫ") + "<br>"); //(ru) расшифровываем
 
-let keyarea = document.getElementById('key')
+let button = document.getElementById('btn');
+let keyarea = document.getElementById('key');
 let textarea = document.getElementById('encrypting');
-keyarea.addEventListener("input",Go);
-textarea.addEventListener("input",Go);
+button.addEventListener("click",Go);
 function Go(){
     let text = textarea.value.toUpperCase()
     let out;
     let action = document.getElementById('Do').value;
     let language = document.getElementById('language').value;
-    let key = document.getElementById('key').value.toUpperCase();
+    let key = keyarea.value.toUpperCase();
 
     switch (action) {
       case 'encryption':
